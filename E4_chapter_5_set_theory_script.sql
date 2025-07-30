@@ -3,8 +3,7 @@
 -- Ensure no duplicates appear in the final table using a set theory clause.
 
 (SELECT 
-	athlete_id,
-	name
+	name 
 FROM 
 	summer_games
 LEFT JOIN
@@ -13,7 +12,6 @@ ON
 	summer_games.athlete_id = athletes.id)
 UNION
 (SELECT 
-	athlete_id,
 	name
 FROM 
 	winter_games
@@ -76,7 +74,8 @@ LEFT JOIN
 
 --Combined Summer and Winter Olympics 
 SELECT
-	DISTINCT country,
+--Trim will remove whitespace before some of the countries
+	DISTINCT TRIM(country) AS country,
 	country_stats.pop_in_millions AS population_2016
 FROM 
 	summer_games
@@ -90,9 +89,10 @@ LEFT JOIN
 	countries.id = country_stats.country_id 
 	AND 
 	country_stats.year = '2016-01-01'
-UNION
+--Intersect will only return results in both tables
+INTERSECT
 SELECT
-	DISTINCT country,
+	DISTINCT TRIM(country) AS country,
 	country_stats.pop_in_millions AS population_2016
 FROM 
 	winter_games
@@ -107,7 +107,7 @@ LEFT JOIN
 	AND 
 	country_stats.year = '2016-01-01';
 
---Testing validity of the results above. Result is zero mean all the Winter countries are also in Summer countries
+--Testing validity of the results above. Result is zero means all the Winter countries are also in Summer countries
 SELECT DISTINCT
   c.country
 FROM winter_games wg
@@ -123,17 +123,17 @@ JOIN countries c ON sg.country_id = c.id;
 -- Return the country_name and region for countries present in the countries table but not in the winter_games table.
 -- (Hint: Use a set theory clause where the top query doesn’t involve a JOIN, but the bottom query does.)
 
-SELECT
+(SELECT
 	country,
 	region
 FROM 
-	countries
+	countries)
 EXCEPT
-SELECT
+(SELECT
 	country,
 	region
 FROM
 	countries
-JOIN
+INNER JOIN
 	winter_games
-	ON countries.id = winter_games.country_id;
+	ON countries.id = winter_games.country_id);
